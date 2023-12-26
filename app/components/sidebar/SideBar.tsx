@@ -4,6 +4,7 @@ import MobileFooter from './MobileFooter';
 
 async function SideBar({ children }: { children: React.ReactNode }) {
   const currentUser = await getCurrentUser();
+  console.log(currentUser);
   return (
     <div className="h-full">
       <DesktopSidebar currentUser={currentUser!} />

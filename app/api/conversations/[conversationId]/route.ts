@@ -14,7 +14,7 @@ export async function DELETE(
   try{
     const {conversationId} = params
     const currentUser = await getCurrentUser();
-
+    
     if(!currentUser){
       return new NextResponse('Unauthorized', {status: 401})
     }

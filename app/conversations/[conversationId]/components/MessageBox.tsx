@@ -9,21 +9,21 @@ interface MessageBoxProps {
   data: FullMessageType;
 }
 import Image from 'next/image';
-import getCurrentUser from '@/app/actions/getCurrentUser';
 
 const MessageBox: React.FC<MessageBoxProps> = ({ isLast, data }) => {
   const session = useSession();
   const isOwn = session.data?.user?.email === data.sender.email;
-  // const user = getCurrentUser()
   const seenList = (data.seen || [])
     .filter((user) => user.email !== data.sender.email)
     .map((user) => user.name)
     .join(', ');
 
+  // console.log(session);
+
   const container = clsx('flex gap-3 p-4', isOwn && 'justify-end');
   const avatar = clsx(isOwn && 'order-2');
   const body = clsx('flex flex-col gap-2', isOwn && 'items-end');
-  console.log(session);
+  // console.log(session);
   const message = clsx(
     'text-sm w-fit overflow-hidden',
     isOwn ? 'bg-sky-500 text-white' : 'bg-gray-100',

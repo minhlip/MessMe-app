@@ -68,11 +68,13 @@ const ConversationBox: React.FC<ConversationBoxProps> = ({
     relative
     flex
     items-center
-    space-x-3
+    space-x-2
     hover:bg-neutral-100
     rounded-lg
     transition
     cursor-pointer
+    p-2
+    my-3
   `,
         selected ? 'bg-neutral-100' : 'bg-white'
       )}
@@ -92,11 +94,11 @@ const ConversationBox: React.FC<ConversationBoxProps> = ({
             mb-1
           "
           >
-            <p className="text-md font-medium text-gray-900">
+            <p className="text-md w-[80%] truncate font-medium text-gray-900">
               {data.name || otherUser?.name}
             </p>
             {lastMessage?.createdAt && (
-              <p className="text-xs text-gray-400 font-light">
+              <p className="text-xs w-[25%] text-gray-400 font-light">
                 {format(new Date(lastMessage?.createdAt), 'p')}
               </p>
             )}

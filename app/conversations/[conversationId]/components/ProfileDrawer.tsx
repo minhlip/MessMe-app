@@ -10,6 +10,7 @@ import Avatar from '@/app/components/Avatar';
 import ConfirmModal from './ConfirmModal';
 import dayjs from 'dayjs';
 import getCurrentUser from '@/app/actions/getCurrentUser';
+import AvatarGroup from '@/app/components/AvatarGroup';
 
 interface ProfileDrawerProps {
   data: Conversation & {
@@ -92,7 +93,7 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
                         <div className="flex flex-col items-center">
                           <div className="mb-2">
                             {data.isGroup ? (
-                              <div />
+                              <AvatarGroup users={data.users} />
                             ) : (
                               <Avatar user={otherUser} />
                             )}
@@ -143,6 +144,7 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
                                   </dd>
                                 </div>
                               )}
+
                               {!data.isGroup && (
                                 <div>
                                   <dt

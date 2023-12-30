@@ -9,9 +9,13 @@ interface MessageBoxProps {
   data: FullMessageType;
 }
 import Image from 'next/image';
+import { useState } from 'react';
+import ImageModal from './ImageModal';
 
 const MessageBox: React.FC<MessageBoxProps> = ({ isLast, data }) => {
   const session = useSession();
+  const [imageModalOpen, setImageModalOpen] = useState<boolean>(false);
+
   const isOwn = session.data?.user?.email === data.sender.email;
   const seenList = (data.seen || [])
     .filter((user) => user.email !== data.sender.email)
@@ -44,8 +48,14 @@ const MessageBox: React.FC<MessageBoxProps> = ({ isLast, data }) => {
         </div>
 
         <div className={message}>
+          <ImageModal
+            src={data.image}
+            isOpen={imageModalOpen}
+            onClose={() => setImageModalOpen(false)}
+          />
           {data.image ? (
             <Image
+              onClick={() => setImageModalOpen(true)}
               src={data.image}
               alt="image"
               height="288"

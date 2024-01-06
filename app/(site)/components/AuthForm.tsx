@@ -1,28 +1,30 @@
 'use client';
 
 import axios from 'axios';
-
-import Button from '@/app/components/Button';
-import Input from '@/app/components/inputs/Input';
-import React, { useCallback, useEffect, useState } from 'react';
-import { FieldValues, useForm, SubmitHandler } from 'react-hook-form';
-import AuthSocialButton from './AuthSocialButton';
-import { BsGithub, BsGoogle } from 'react-icons/bs';
-import { toast } from 'react-hot-toast';
 import { signIn, useSession } from 'next-auth/react';
+import { useCallback, useEffect, useState } from 'react';
+import { BsGithub, BsGoogle } from 'react-icons/bs';
+import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 
+import Input from '@/app/components/inputs/Input';
+import AuthSocialButton from './AuthSocialButton';
+import Button from '@/app/components/Button';
+import { toast } from 'react-hot-toast';
+
 type Variant = 'LOGIN' | 'REGISTER';
-export default function AuthForm() {
+
+const AuthForm = () => {
   const session = useSession();
   const router = useRouter();
   const [variant, setVariant] = useState<Variant>('LOGIN');
   const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     if (session?.status === 'authenticated') {
-      router.push('/users');
+      router.push('/conversations');
     }
-  }, [session.status, router]);
+  }, [session?.status, router]);
 
   const toggleVariant = useCallback(() => {
     if (variant === 'LOGIN') {
@@ -48,10 +50,23 @@ export default function AuthForm() {
     setIsLoading(true);
 
     if (variant === 'REGISTER') {
-      //Axios Register
       axios
         .post('/api/register', data)
-        .then(() => signIn('credentials', data))
+        .then(() =>
+          signIn('credentials', {
+            ...data,
+            redirect: false,
+          })
+        )
+        .then((callback) => {
+          if (callback?.error) {
+            toast.error('Invalid credentials!');
+          }
+
+          if (callback?.ok) {
+            router.push('/conversations');
+          }
+        })
         .catch(() => toast.error('Something went wrong!'))
         .finally(() => setIsLoading(false));
     }
@@ -66,9 +81,8 @@ export default function AuthForm() {
             toast.error('Invalid credentials!');
           }
 
-          if (callback?.ok && !callback?.error) {
-            toast.success('Logged in!');
-            router.push('/users');
+          if (callback?.ok) {
+            router.push('/conversations');
           }
         })
         .finally(() => setIsLoading(false));
@@ -77,70 +91,63 @@ export default function AuthForm() {
 
   const socialAction = (action: string) => {
     setIsLoading(true);
+
     signIn(action, { redirect: false })
       .then((callback) => {
         if (callback?.error) {
           toast.error('Invalid credentials!');
         }
 
-        if (callback?.ok && !callback.error) {
-          toast.success('Logged in!');
+        if (callback?.ok) {
+          router.push('/conversations');
         }
       })
       .finally(() => setIsLoading(false));
-    //NextAuth Social Login
   };
+
   return (
-    <div
-      className="
-        mt-8
-        sm:mx-auto
-        sm:w-full
-        sm:max-w-md
-   "
-    >
+    <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
       <div
         className="
         bg-white
-        border-[2px]
-        border-solid
-      border-gray-400
-        px-4
-        py-8
-        shadow
-        sm:rounded-lg
-        sm:px-10
-      "
+          px-4
+          py-8
+          shadow
+          sm:rounded-lg
+          sm:px-10
+        "
       >
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           {variant === 'REGISTER' && (
             <Input
-              id="name"
-              label="Name"
-              type="text"
+              disabled={isLoading}
               register={register}
               error={errors}
-              disabled={isLoading}
+              required
+              id="name"
+              label="Name"
             />
           )}
           <Input
-            id="email"
-            label="Email"
+            disabled={isLoading}
             register={register}
             error={errors}
+            required
+            id="email"
+            label="Email address"
             type="email"
-            disabled={isLoading}
           />
           <Input
-            id="password"
-            label="Password"
+            disabled={isLoading}
             register={register}
             error={errors}
+            required
+            id="password"
+            label="Password"
             type="password"
-            disabled={isLoading}
           />
           <div>
-            <Button disabled={isLoading} type="submit" fullWidth>
+            <Button disabled={isLoading} fullWidth type="submit">
               {variant === 'LOGIN' ? 'Sign in' : 'Register'}
             </Button>
           </div>
@@ -167,23 +174,38 @@ export default function AuthForm() {
 
           <div className="mt-6 flex gap-2">
             <AuthSocialButton
-              onClick={() => socialAction('github')}
               icon={BsGithub}
+              onClick={() => socialAction('github')}
             />
             <AuthSocialButton
-              onClick={() => socialAction('google')}
               icon={BsGoogle}
+              onClick={() => socialAction('google')}
             />
           </div>
         </div>
-
-        <div className="flex gap-2 justify-center text-sm mt-6 px-2 text-gray-500">
-          {variant === 'LOGIN' ? 'New to Messme?' : 'Already have account?'}
-          <div onClick={toggleVariant} className="cursor-pointer underline">
+        <div
+          className="
+            flex 
+            gap-2 
+            justify-center 
+            text-sm 
+            mt-6 
+            px-2 
+            text-gray-500
+          "
+        >
+          <div>
+            {variant === 'LOGIN'
+              ? 'New to Messenger?'
+              : 'Already have an account?'}
+          </div>
+          <div onClick={toggleVariant} className="underline cursor-pointer">
             {variant === 'LOGIN' ? 'Create an account' : 'Login'}
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default AuthForm;

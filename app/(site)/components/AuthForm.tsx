@@ -82,7 +82,9 @@ const AuthForm = () => {
           }
 
           if (callback?.ok) {
-            router.push('/conversations');
+            router.push('/users');
+            console.log(callback, data)
+            toast.success('Login Succeed!')
           }
         })
         .finally(() => setIsLoading(false));
